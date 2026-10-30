@@ -42,30 +42,6 @@
     document.getElementById('manifest-placeholder')?.setAttribute('href', 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest)));
 })();
 
-// Register Inline Service Worker
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        const swCode = `
-            self.addEventListener('install', (e) => self.skipWaiting());
-            self.addEventListener('activate', (e) => self.clients.claim());
-            self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-        `;
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => { });
-    });
-}
-
-
-
-function triggerPwaInstall() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissInstallBanner(); });
-    } else {
-        alert("To install NexusVault:\n\n• Mobile: Tap 3 dots > 'Add to Home screen'.\n• iOS: Tap Share > 'Add to Home Screen'.\n• Desktop: Click the Install icon in your browser address bar.");
-    }
-}
-function dismissInstallBanner() { document.getElementById('pwa-install-banner')?.classList.add('hidden'); }
 
 // Presets & App State
 const PRESET_ICONS = [
