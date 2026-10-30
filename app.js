@@ -55,14 +55,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// PWA Installation Handling
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    document.getElementById('pwa-install-header-btn')?.classList.remove('hidden');
-    document.getElementById('pwa-install-banner')?.classList.remove('hidden');
-});
+
 
 function triggerPwaInstall() {
     if (deferredPrompt) {
