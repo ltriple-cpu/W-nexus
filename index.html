@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0d14">
+    <title>NexusVault - Game Account & Code Manager</title>
+
+    <!-- PWA / App Display Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NexusVault">
+    <meta name="application-name" content="NexusVault">
+
+    <!-- Inline Web App Manifest Data URI -->
+    <link rel="manifest" id="manifest-placeholder">
+
+    <!-- App Icon Meta Links -->
+    <link rel="apple-touch-icon" id="apple-touch-icon-placeholder">
+    <link rel="icon" type="image/svg+xml" id="favicon-placeholder">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#080b11',
+                            panel: '#101622',
+                            card: '#161f30',
+                            border: '#1f2d47',
+                            accent: '#00f0ff',
+                            purple: '#8a2be2',
+                            pink: '#ff0055',
+                            green: '#00ff66',
+                            yellow: '#ffcc00',
+                            text: '#e2e8f0'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 15px rgba(0, 240, 255, 0.35)',
+                        'neon-purple': '0 0 15px rgba(138, 43, 226, 0.35)',
+                        'neon-pink': '0 0 15px rgba(255, 0, 85, 0.35)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide & FontAwesome Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Protest+Riot&family=Caesar+Dressing&display=swap" rel="stylesheet">
+
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyber-accent selection:text-black pb-10">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-xs w-full"></div>
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 glass-panel border border-cyber-accent rounded-2xl p-4 shadow-neon-cyan max-w-sm w-[90%] hidden items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div id="banner-icon-container" class="w-10 h-10 rounded-xl bg-cyber-accent/20 border border-cyber-accent text-cyber-accent flex items-center justify-center overflow-hidden">
+                <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <p class="font-orbitron font-bold text-xs text-white">Install NexusVault</p>
+                <p class="text-[10px] text-gray-400">Install app on Mobile & Windows</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="dismissInstallBanner()" class="text-xs text-gray-400 px-2 py-1">Later</button>
+            <button onclick="triggerPwaInstall()" class="bg-cyber-accent text-black text-xs font-bold px-3 py-1.5 rounded-xl hover:bg-cyber-accent/90 shadow-neon-cyan">Install</button>
+        </div>
+    </div>
+
+    <!-- Security PIN / Pattern Lock Screen -->
+    <div id="pin-lock-screen" class="fixed inset-0 z-50 bg-[#080b11]/98 backdrop-blur-xl flex flex-col items-center justify-center p-4 hidden">
+        <div class="glass-panel p-8 rounded-2xl max-w-sm w-full text-center border border-cyber-accent/30 shadow-neon-cyan">
+            <div class="w-16 h-16 rounded-2xl bg-cyber-accent/10 border border-cyber-accent text-cyber-accent flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="shield-check" class="w-8 h-8"></i>
+            </div>
+            <h2 class="font-orbitron text-xl font-bold text-white mb-1">NEXUS VAULT LOCK</h2>
+            <p id="lock-subtitle" class="text-xs text-gray-400 mb-6">Enter PIN or Pattern to unlock</p>
+
+            <div id="pin-lock-container">
+                <div class="flex justify-center gap-2 mb-6 min-h-[16px] flex-wrap max-w-[260px] mx-auto" id="pin-dots"></div>
+                <div class="grid grid-cols-3 gap-3 max-w-[220px] mx-auto mb-4">
+                    <button onclick="appendPin('1')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">1</button>
+                    <button onclick="appendPin('2')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">2</button>
+                    <button onclick="appendPin('3')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">3</button>
+                    <button onclick="appendPin('4')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">4</button>
+                    <button onclick="appendPin('5')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">5</button>
+                    <button onclick="appendPin('6')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">6</button>
+                    <button onclick="appendPin('7')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">7</button>
+                    <button onclick="appendPin('8')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">8</button>
+                    <button onclick="appendPin('9')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">9</button>
+                    <button onclick="clearPin()" class="h-12 rounded-xl bg-cyber-card border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-semibold transition active:scale-95">CLR</button>
+                    <button onclick="appendPin('0')" class="h-12 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-lg font-bold text-white transition active:scale-95">0</button>
+                    <button onclick="backspacePin()" class="h-12 rounded-xl bg-cyber-card border border-cyber-border text-gray-300 hover:text-white flex items-center justify-center transition active:scale-95"><i data-lucide="delete" class="w-5 h-5"></i></button>
+                </div>
+                <button onclick="verifyPin()" class="w-full py-2.5 rounded-xl bg-cyber-accent text-black font-bold text-xs shadow-neon-cyan mt-2">Unlock Vault</button>
+            </div>
+
+            <div id="pattern-lock-container" class="hidden flex-col items-center">
+                <canvas id="pattern-canvas" width="240" height="240" class="pattern-grid cursor-pointer my-2"></canvas>
+                <p class="text-[11px] text-gray-500">Drag/Touch across dots to draw pattern</p>
+            </div>
+            <p id="pin-error" class="text-xs text-red-400 min-h-[16px] font-medium mt-3"></p>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-30 glass-panel border-b border-cyber-border/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyber-accent to-cyber-green p-[1px] shadow-neon-cyan flex items-center justify-center overflow-hidden" id="header-logo-icon">
+    <div class="w-full h-full bg-cyber-bg rounded-[11px] flex items-center justify-center">
+        <i class="fa-solid fa-yin-yang text-3xl text-cyber-pink animate-[spin_4s_linear_infinite_reverse] flex items-center justify-center"></i>
+    </div>
+</div>
+                <div>
+                    <h1 class="font-orbitron font-black text-3xl tracking-wider text-white flex items-center gap-1.5">
+                        LTRIPLEP<span class="text-cyber-accent">NEXUS</span>
+                    </h1>
+                    <p class="text-[12px] text-cyber-purple tracking-widest font-mono uppercase">Game Accounts & Redeem Codes</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="pwa-install-header-btn" onclick="triggerPwaInstall()" class="hidden items-center gap-1.5 bg-cyber-card border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold px-3 py-2 rounded-xl transition text-xs shadow-neon-cyan">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Install App</span>
+                </button>
+                <button onclick="openModal()" id="header-add-btn" class="flex items-center gap-2 bg-gradient-to-r from-cyber-accent to-cyber-purple hover:from-cyber-accent/90 hover:to-cyber-purple/90 text-black font-bold px-4 py-2.5 rounded-xl transition duration-200 shadow-neon-cyan text-xs sm:text-sm">
+                    <i data-lucide="plus" class="w-4 h-4 stroke-[3]"></i>
+                    <span id="header-add-text" class="hidden sm:inline">Add Game Accounts</span>
+                </button>
+                <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-cyber-card border border-cyber-border hover:border-cyber-accent text-gray-300 hover:text-white transition">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex-1 w-full">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            <div class="glass-panel p-4 sm:p-5 rounded-2xl flex items-center justify-between border-l-4 border-l-cyber-accent">
+                <div>
+                    <p id="stat-label-1" class="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Total Games</p>
+                    <h3 id="stat-count-1" class="font-orbitron text-xl sm:text-2xl font-bold text-white mt-1">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-cyber-accent/10 border border-cyber-accent/30 text-cyber-accent flex items-center justify-center">
+                    <i data-lucide="database" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 sm:p-5 rounded-2xl flex items-center justify-between border-l-4 border-l-cyber-purple">
+                <div>
+                    <p id="stat-label-2" class="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Total Accounts</p>
+                    <h3 id="stat-count-2" class="font-orbitron text-xl sm:text-2xl font-bold text-white mt-1">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-cyber-purple/10 border border-cyber-purple/30 text-cyber-purple flex items-center justify-center">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 sm:p-5 rounded-2xl flex items-center justify-between border-l-4 border-l-cyber-pink">
+                <div>
+                    <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Vault Security</p>
+                    <h3 id="stat-lock-status" class="font-orbitron text-xs sm:text-sm font-semibold text-cyber-pink mt-2 uppercase">Disabled</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-cyber-pink/10 border border-cyber-pink/30 text-cyber-pink flex items-center justify-center">
+                    <i data-lucide="lock" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 sm:p-5 rounded-2xl flex items-center justify-between border-l-4 border-l-cyber-green">
+                <div>
+                    <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wider">App Installation</p>
+                    <h3 id="stat-pwa-status" class="font-orbitron text-xs sm:text-sm font-semibold text-cyber-green mt-2 uppercase">Ready to Install</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-cyber-green/10 border border-cyber-green/30 text-cyber-green flex items-center justify-center">
+                    <i data-lucide="smartphone" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 mb-6 border-b border-cyber-border pb-4">
+            <button onclick="switchTab('accounts')" id="tab-accounts-btn" class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-orbitron text-xs font-bold tracking-wider transition bg-cyber-accent text-black shadow-neon-cyan">
+                <i data-lucide="gamepad-2" class="w-4 h-4"></i> Game Vaults
+            </button>
+            <button onclick="switchTab('codes')" id="tab-codes-btn" class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-orbitron text-xs font-bold tracking-wider transition bg-cyber-card text-gray-300 border border-cyber-border hover:border-cyber-accent">
+                <i data-lucide="ticket" class="w-4 h-4 text-cyber-accent"></i> Batch Code Lists
+            </button>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 mb-8 items-center justify-between">
+            <div class="relative w-full md:w-80">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="search-input" oninput="renderCurrentView()" placeholder="Search title, code, tag..." class="w-full bg-cyber-card border border-cyber-border focus:border-cyber-accent rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none transition">
+            </div>
+            <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none" id="category-pills"></div>
+        </div>
+
+        <div id="accounts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="codes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+
+        <div id="empty-state" class="hidden flex-col items-center justify-center text-center py-16 px-4">
+            <div class="w-16 h-16 rounded-full bg-cyber-card border border-cyber-border flex items-center justify-center text-gray-500 mb-4">
+                <i data-lucide="ghost" class="w-8 h-8"></i>
+            </div>
+            <h3 id="empty-title" class="font-orbitron text-base font-bold text-gray-300 mb-1">No Entries Found</h3>
+            <p id="empty-desc" class="text-xs text-gray-500 max-w-xs mb-6">Add your items to store them safely offline.</p>
+            <button onclick="openModal()" id="empty-action-btn" class="bg-cyber-accent text-black font-bold px-5 py-2.5 rounded-xl text-xs hover:bg-cyber-accent/90 transition shadow-neon-cyan">Add Entry</button>
+        </div>
+    </main>
+
+    <footer class="mt-12 text-center text-xs text-gray-500 border-t border-cyber-border/40 pt-6 max-w-7xl mx-auto px-4">
+        <p>NexusVault • Standalone Offline Device Persistence • Android & PC PWA Ready</p>
+    </footer>
+
+    <!-- Modals -->
+    <div id="account-modal" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden overflow-y-auto">
+        <div class="glass-panel my-8 max-w-lg w-full rounded-2xl border border-cyber-accent/30 shadow-2xl p-6 relative max-h-[90vh] flex flex-col">
+            <button onclick="closeModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white p-1 rounded-lg hover:bg-cyber-card"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h2 id="modal-title" class="font-orbitron font-bold text-lg text-white mb-5 flex items-center gap-2 shrink-0">
+                <i data-lucide="plus-circle" class="w-5 h-5 text-cyber-accent"></i><span>Add New Game Vault</span>
+            </h2>
+            <form id="account-form" onsubmit="saveAccount(event)" class="space-y-4 overflow-y-auto pr-1">
+                <input type="hidden" id="acc-id">
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Game Title *</label>
+                    <input type="text" id="acc-title" required placeholder="e.g. Goddess of Victory: Nikke" class="w-full bg-cyber-card border border-cyber-border focus:border-cyber-accent rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Select Platform Icon or Image</label>
+                    <div class="grid grid-cols-6 gap-2 mb-2" id="preset-icons-grid"></div>
+                    <div class="flex gap-2 items-center">
+                        <input type="url" id="acc-icon-custom" placeholder="Or Custom Icon Image URL" class="w-full bg-cyber-card border border-cyber-border focus:border-cyber-accent rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+                        <label class="cursor-pointer bg-cyber-card border border-cyber-border hover:border-cyber-accent text-[11px] px-3 py-2 rounded-xl text-gray-300 whitespace-nowrap">
+                            Upload <input type="file" id="acc-icon-file" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'account')">
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Category Tag</label>
+                    <select id="acc-tag" class="w-full bg-cyber-card border border-cyber-border focus:border-cyber-accent rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
+                        <option value="Steam">Steam</option>
+                        <option value="Discord">Discord</option>
+                        <option value="Riot">Riot</option>
+                        <option value="Genshin">Genshin</option>
+                        <option value="Nikke">Nikke</option>
+                        <option value="Mobile">Mobile</option>
+                        <option value="Wuwa">WuWa</option>
+                        <option value="Zzz">ZZZ</option>
+                        <option value="Endfield">Endfield</option>
+                        <option value="Nte">NTE</option>
+                        <option value="Arknight">Arknight</option>
+                        <option value="BSR">BSR</option>
+                    </select>
+                </div>
+                <div class="border-t border-cyber-border/80 pt-4 mt-2">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="block text-xs font-semibold text-cyber-accent uppercase tracking-wider">Sub-Accounts Credentials</label>
+                        <button type="button" onclick="addSubAccountRow()" class="text-[11px] bg-cyber-accent/10 border border-cyber-accent/40 text-cyber-accent hover:bg-cyber-accent hover:text-black font-semibold px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+                            <i data-lucide="plus" class="w-3 h-3"></i> Add Sub-Account
+                        </button>
+                    </div>
+                    <div id="subaccounts-modal-container" class="space-y-3"></div>
+                </div>
+                <div class="pt-2 flex justify-end gap-3 shrink-0">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl border border-cyber-border text-gray-400 text-xs hover:bg-cyber-card">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-cyber-accent text-black font-bold text-xs hover:bg-cyber-accent/90 transition shadow-neon-cyan">Save Game Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="code-modal" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden overflow-y-auto">
+        <div class="glass-panel my-8 max-w-lg w-full rounded-2xl border border-cyber-purple/40 shadow-2xl p-6 relative max-h-[90vh] flex flex-col">
+            <button onclick="closeCodeModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white p-1 rounded-lg hover:bg-cyber-card"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h2 id="code-modal-title" class="font-orbitron font-bold text-lg text-white mb-5 flex items-center gap-2 shrink-0">
+                <i data-lucide="ticket" class="w-5 h-5 text-cyber-accent"></i><span>Add Game Redeem Codes List</span>
+            </h2>
+            <form id="code-form" onsubmit="saveBatchRedeemCodesEntry(event)" class="space-y-4 overflow-y-auto pr-1">
+                <input type="hidden" id="code-list-id">
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Game / Title *</label>
+                    <input type="text" id="code-list-game" required placeholder="e.g. Goddess of Victory: Nikke" class="w-full bg-cyber-card border border-cyber-border focus:border-cyber-purple rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Game / Badge Icon Image</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="url" id="code-list-icon-url" placeholder="Image URL (Logo or Badge)" class="w-full bg-cyber-card border border-cyber-border focus:border-cyber-purple rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+                        <label class="cursor-pointer bg-cyber-card border border-cyber-border hover:border-cyber-purple text-[11px] px-3 py-2 rounded-xl text-gray-300 whitespace-nowrap">
+                            Upload <input type="file" id="code-list-icon-file" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'code-list')">
+                        </label>
+                    </div>
+                </div>
+                <div class="border-t border-cyber-border/80 pt-4 mt-2">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="block text-xs font-semibold text-cyber-purple uppercase tracking-wider">Redeem Codes List</label>
+                        <button type="button" onclick="addCodeItemRow()" class="text-[11px] bg-cyber-purple/10 border border-cyber-purple/40 text-cyber-purple hover:bg-cyber-purple hover:text-white font-semibold px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+                            <i data-lucide="plus" class="w-3 h-3"></i> Add Code
+                        </button>
+                    </div>
+                    <div id="code-items-modal-container" class="space-y-3"></div>
+                </div>
+                <div class="pt-2 flex justify-end gap-3 shrink-0">
+                    <button type="button" onclick="closeCodeModal()" class="px-4 py-2 rounded-xl border border-cyber-border text-gray-400 text-xs hover:bg-cyber-card">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-cyber-purple text-white font-bold text-xs hover:bg-cyber-purple/90 transition shadow-neon-purple">Save Code List</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-md w-full rounded-2xl border border-cyber-purple/40 shadow-2xl p-6 relative">
+            <button onclick="closeSettingsModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white p-1 rounded-lg hover:bg-cyber-card"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h2 class="font-orbitron font-bold text-lg text-white mb-5 flex items-center gap-2">
+                <i data-lucide="shield" class="w-5 h-5 text-cyber-purple"></i><span>Vault Settings & Security</span>
+            </h2>
+            <div class="space-y-5 text-xs">
+                <div class="p-3.5 rounded-xl bg-cyber-card border border-cyber-border space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-white">Vault Security Lock</p>
+                            <p class="text-[11px] text-gray-400">Require lock when opening vault</p>
+                        </div>
+                        <button id="pin-toggle-btn" onclick="togglePinLockSetting()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-cyber-border text-gray-300 transition">Disabled</button>
+                    </div>
+                    <div id="lock-type-selector" class="grid grid-cols-2 gap-2 pt-2 border-t border-cyber-border/50 hidden">
+                        <button type="button" onclick="setLockType('pin')" id="lock-type-pin-btn" class="py-1.5 rounded-lg border text-center font-semibold bg-cyber-accent text-black border-cyber-accent">PIN Code (4-8 digits)</button>
+                        <button type="button" onclick="setLockType('pattern')" id="lock-type-pattern-btn" class="py-1.5 rounded-lg border text-center font-semibold bg-cyber-bg text-gray-300 border-cyber-border">Pattern (3x3 Grid)</button>
+                    </div>
+                </div>
+
+                <div id="set-pin-section" class="p-3.5 rounded-xl bg-cyber-card border border-cyber-border hidden space-y-2">
+                    <label class="block text-xs font-medium text-gray-300">Set Security PIN (4 to 8 Digits)</label>
+                    <div class="flex gap-2">
+                        <input type="password" id="new-pin-input" minlength="4" maxlength="8" placeholder="123456" class="bg-cyber-bg border border-cyber-border rounded-xl px-3 py-1.5 text-center text-sm font-mono text-white w-full focus:outline-none focus:border-cyber-accent">
+                        <button onclick="saveNewPin()" class="px-4 py-1.5 rounded-xl bg-cyber-accent text-black font-bold text-xs whitespace-nowrap">Save PIN</button>
+                    </div>
+                </div>
+
+                <div id="set-pattern-section" class="p-3.5 rounded-xl bg-cyber-card border border-cyber-border hidden space-y-2 text-center">
+                    <label class="block text-xs font-medium text-gray-300">Draw New Pattern Lock</label>
+                    <canvas id="set-pattern-canvas" width="200" height="200" class="pattern-grid cursor-pointer mx-auto my-2"></canvas>
+                    <button onclick="saveNewPattern()" class="w-full py-2 rounded-xl bg-cyber-accent text-black font-bold text-xs shadow-neon-cyan">Save Pattern</button>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-cyber-card border border-cyber-border space-y-2">
+                    <p class="font-semibold text-white">Backup & Sync Database</p>
+                    <p class="text-[11px] text-gray-400">Export accounts and redeem code lists to JSON file.</p>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="exportJSON()" class="flex-1 py-2 px-3 bg-cyber-border hover:bg-cyber-accent hover:text-black rounded-xl text-xs font-semibold text-white flex items-center justify-center gap-1.5 transition">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Backup
+                        </button>
+                        <label class="flex-1 py-2 px-3 bg-cyber-border hover:bg-cyber-purple rounded-xl text-xs font-semibold text-white flex items-center justify-center gap-1.5 transition cursor-pointer text-center">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import File
+                            <input type="file" id="import-file" accept=".json" onchange="importJSON(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t border-cyber-border">
+                    <button onclick="clearAllData()" class="w-full py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-bold transition">Wipe All Local Storage Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Main Logic Script -->
+    <script src="app.js"></script>
+</body>
+
+</html>

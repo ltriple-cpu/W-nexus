@@ -1,0 +1,75 @@
+/* Custom Fonts and Base Background Styling */
+body {
+    font-family: 'Protest Riot', cursive;
+    background-color: var(--cyber-bg, #080b11);
+    color: #e2e8f0;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.05) 0%, transparent 35%),
+        radial-gradient(circle at 90% 80%, rgba(138, 43, 226, 0.05) 0%, transparent 35%);
+    background-attachment: fixed;
+    user-select: none;
+}
+
+.font-orbitron {
+    font-family: 'Caesar Dressing', cursive;
+}
+
+/* Webkit Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--cyber-bg, #080b11);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--cyber-border, #1f2d47);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--cyber-accent, #00f0ff);
+}
+
+/* Glassmorphism Panel & Card Styling using CSS Variables */
+.glass-panel {
+    background: var(--cyber-panel, rgba(16, 22, 34, 0.85));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--cyber-border, rgba(0, 240, 255, 0.15));
+}
+
+.glass-card {
+    background: var(--cyber-card, rgba(22, 31, 48, 0.7));
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--cyber-border, rgba(255, 255, 255, 0.07));
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.glass-card:hover {
+    border-color: var(--cyber-accent, rgba(0, 240, 255, 0.4));
+    box-shadow: 0 8px 20px -5px var(--cyber-accent, rgba(0, 240, 255, 0.15));
+}
+
+/* Drag and Drop Interactions */
+.glass-card.dragging {
+    opacity: 0.35;
+    border: 2px dashed var(--cyber-accent, #00f0ff);
+    transform: scale(0.98);
+}
+
+.drag-handle {
+    cursor: grab;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Lock Pattern Canvas Touch Utilities */
+.pattern-grid {
+    touch-action: none;
+    position: relative;
+}
