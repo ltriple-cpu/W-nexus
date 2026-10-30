@@ -191,6 +191,7 @@ function renderAccounts() {
         card.setAttribute('draggable', 'true');
         card.dataset.id = acc.id;
 
+        // Desktop HTML5 Drag & Drop
         card.addEventListener('dragstart', (e) => {
             draggedCardId = acc.id;
             e.dataTransfer.effectAllowed = 'move';
@@ -216,6 +217,37 @@ function renderAccounts() {
                     grid.insertBefore(draggingEl, nextSibling);
                 }
             }
+        });
+
+        // Mobile Touch Drag & Drop Support
+        let touchItem = null;
+        card.addEventListener('touchstart', (e) => {
+            touchItem = card;
+            card.classList.add('dragging');
+        }, { passive: true });
+
+        card.addEventListener('touchmove', (e) => {
+            if (!touchItem) return;
+            const touch = e.touches[0];
+            const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+            const targetCard = targetElement ? targetElement.closest('.glass-card') : null;
+
+            if (targetCard && targetCard !== touchItem) {
+                const rect = targetCard.getBoundingClientRect();
+                const nextSibling = (touch.clientY - rect.top) > (rect.height / 2) ? targetCard.nextSibling : targetCard;
+                if (touchItem !== nextSibling) {
+                    grid.insertBefore(touchItem, nextSibling);
+                }
+            }
+        }, { passive: true });
+
+        card.addEventListener('touchend', () => {
+            if (!touchItem) return;
+            touchItem.classList.remove('dragging');
+            touchItem = null;
+            const newOrderIds = [...grid.querySelectorAll('.glass-card')].map(el => el.dataset.id);
+            accounts.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
+            saveAccountsToStorage();
         });
 
         let iconHtml = acc.customIcon ? `<img src="${acc.customIcon}" class="w-full h-full object-cover rounded-xl" />` :
